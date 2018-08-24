@@ -31,4 +31,11 @@ public class Word {
     public int getResourceId() {
         return resourceId;
     }
+
+    public boolean hasImage(){
+        if (this.resourceId>=1)
+            return true;
+        return false;
+
+    }
 }

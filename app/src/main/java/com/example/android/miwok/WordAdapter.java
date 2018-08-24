@@ -40,8 +40,12 @@ public class WordAdapter extends ArrayAdapter<Word> {
         miwokWord.setText(currentWord.getMiwok_word());
 
         ImageView image = (ImageView)listView.findViewById(R.id.image);
-        image.setImageResource(currentWord.getResourceId());
 
+        if(currentWord.hasImage()) {
+            image.setImageResource(currentWord.getResourceId());
+        }
+        else
+            image.setVisibility(View.GONE);
         return  listView;
 
 
