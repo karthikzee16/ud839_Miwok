@@ -11,13 +11,19 @@ import java.util.ArrayList;
 
 public class PhrasesActivity extends AppCompatActivity {
     MediaPlayer mp;
+    private MediaPlayer.OnCompletionListener mCompletionListener = new MediaPlayer.OnCompletionListener() {
+        @Override
+        public void onCompletion(MediaPlayer mp) {
+            releaseMediaPlayer();
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.word_list);
 
-       final ArrayList<Word> words = new ArrayList<Word>();
+        final ArrayList<Word> words = new ArrayList<Word>();
         words.add(new Word("Where are you going?", "minto wuksus",
                 R.raw.phrase_where_are_you_going));
         words.add(new Word("What is your name?", "tinnә oyaase'nә",
@@ -31,18 +37,35 @@ public class PhrasesActivity extends AppCompatActivity {
         words.add(new Word("Let’s go.", "yoowutis", R.raw.phrase_lets_go));
         words.add(new Word("Come here.", "әnni'nem", R.raw.phrase_come_here));
 
-        ListView listView =(ListView)findViewById(R.id.list);
-        WordAdapter wordAdapter = new WordAdapter(this,words,R.color.category_phrases);
+        ListView listView = (ListView) findViewById(R.id.list);
+        WordAdapter wordAdapter = new WordAdapter(this, words, R.color.category_phrases);
         listView.setAdapter(wordAdapter);
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Word word = words.get(position);
-                mp =MediaPlayer.create(PhrasesActivity.this,word.getAudiorscId());
+                releaseMediaPlayer();
+                mp = MediaPlayer.create(PhrasesActivity.this, word.getAudiorscId());
                 mp.start();
+                mp.setOnCompletionListener(mCompletionListener);
 
             }
         });
+    }
+
+
+    private void releaseMediaPlayer() {
+        // If the media player is not null, then it may be currently playing a sound.
+        if (mp != null) {
+            // Regardless of the current state of the media player, release its resources
+            // because we no longer need it.
+            mp.release();
+
+            // Set the media player back to null. For our code, we've decided that
+            // setting the media player to null is an easy way to tell that the media player
+            // is not configured to play an audio file at the moment.
+            mp = null;
+        }
     }
 }

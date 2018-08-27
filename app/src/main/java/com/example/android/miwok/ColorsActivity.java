@@ -10,14 +10,28 @@ import android.widget.ListView;
 import java.util.ArrayList;
 
 public class ColorsActivity extends AppCompatActivity {
-MediaPlayer mp;
+    MediaPlayer mp;
+    private MediaPlayer.OnCompletionListener mCompletionListener = new MediaPlayer.OnCompletionListener() {
+        @Override
+        public void onCompletion(MediaPlayer mp) {
+            releaseMediaPlayer();
+        }
+    };
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        releaseMediaPlayer();
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.word_list);
 
 
-       final ArrayList<Word> words = new ArrayList<Word>();
+
+        final ArrayList<Word> words = new ArrayList<Word>();
         words.add(new Word("red", "weṭeṭṭi", R.drawable.color_red, R.raw.color_red));
         words.add(new Word("mustard yellow", "chiwiiṭә", R.drawable.color_mustard_yellow,
                 R.raw.color_mustard_yellow));
@@ -30,18 +44,34 @@ MediaPlayer mp;
         words.add(new Word("white", "kelelli", R.drawable.color_white, R.raw.color_white));
 
 
-
-        ListView listView =(ListView)findViewById(R.id.list);
-        WordAdapter wordAdapter = new WordAdapter(this,words,R.color.category_colors);
+        ListView listView = (ListView) findViewById(R.id.list);
+        WordAdapter wordAdapter = new WordAdapter(this, words, R.color.category_colors);
         listView.setAdapter(wordAdapter);
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Word word = words.get(position);
-                mp = MediaPlayer.create(ColorsActivity.this,word.getAudiorscId());
+                releaseMediaPlayer();
+                mp = MediaPlayer.create(ColorsActivity.this, word.getAudiorscId());
                 mp.start();
+                mp.setOnCompletionListener(mCompletionListener);
             }
         });
+
+    }
+
+    private void releaseMediaPlayer() {
+        // If the media player is not null, then it may be currently playing a sound.
+        if (mp != null) {
+            // Regardless of the current state of the media player, release its resources
+            // because we no longer need it.
+            mp.release();
+
+            // Set the media player back to null. For our code, we've decided that
+            // setting the media player to null is an easy way to tell that the media player
+            // is not configured to play an audio file at the moment.
+            mp = null;
+        }
     }
 }

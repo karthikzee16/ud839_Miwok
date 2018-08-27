@@ -10,7 +10,14 @@ import android.widget.ListView;
 import java.util.ArrayList;
 
 public class FamilyActivity extends AppCompatActivity {
-MediaPlayer mp;
+    MediaPlayer mp;
+    private MediaPlayer.OnCompletionListener mCompletionListener = new MediaPlayer.OnCompletionListener() {
+        @Override
+        public void onCompletion(MediaPlayer mp) {
+            releaseMediaPlayer();
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -34,18 +41,42 @@ MediaPlayer mp;
         words.add(new Word("grandfather", "paapa", R.drawable.family_grandfather,
                 R.raw.family_grandfather));
 
-        ListView listView =(ListView)findViewById(R.id.list);
-        WordAdapter wordAdapter = new WordAdapter(this,words,R.color.category_family);
+        ListView listView = (ListView) findViewById(R.id.list);
+        WordAdapter wordAdapter = new WordAdapter(this, words, R.color.category_family);
         listView.setAdapter(wordAdapter);
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Word word = words.get(position);
-                mp=MediaPlayer.create(FamilyActivity.this,word.getAudiorscId());
+                releaseMediaPlayer();
+                mp = MediaPlayer.create(FamilyActivity.this, word.getAudiorscId());
                 mp.start();
+                mp.setOnCompletionListener(mCompletionListener);
 
             }
         });
+
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        releaseMediaPlayer();
+    }
+
+
+    private void releaseMediaPlayer() {
+        // If the media player is not null, then it may be currently playing a sound.
+        if (mp != null) {
+            // Regardless of the current state of the media player, release its resources
+            // because we no longer need it.
+            mp.release();
+
+            // Set the media player back to null. For our code, we've decided that
+            // setting the media player to null is an easy way to tell that the media player
+            // is not configured to play an audio file at the moment.
+            mp = null;
+        }
     }
 }
